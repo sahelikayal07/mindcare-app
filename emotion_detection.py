@@ -56,7 +56,7 @@ def detect_emotion(text: str) -> str:
         "stressed", "stress", "overwhelmed", "burnout", "exhausted",
         "deadline", "pressure", "overloaded", "tired", "can't cope",
         "cant cope", "too much", "no time", "behind", "failing",
-        "drowning in work", "breaking down",
+        "drowning in work", "breaking down", "tensed",
     ]
     if any(word in text_lower for word in stress_keywords):
         return "Stressed"
