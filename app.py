@@ -641,7 +641,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 
 
 # ── Danger zone ───────────────────────────────────────────────────────────────
-with st.expander("⚠️ Danger Zone — Clear All Mood Data"):
+with st.expander("⚠️ Clear All Mood Data"):
     st.warning("This will permanently delete your entire mood history. This cannot be undone.")
     if st.checkbox("✅ Yes, I understand — delete all my mood data"):
         _, dc, _ = st.columns([1, 2, 1])
