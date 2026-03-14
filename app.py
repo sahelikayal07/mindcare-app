@@ -84,25 +84,82 @@ MOOD_COLORS  = {
 def detect_emotion(text: str) -> str:
     if not text.strip(): return "Neutral"
     tl = text.lower()
-    crisis_kw = [
-        "die","dying","dead","death","i want to die","i wanna die",
-        "wish i was dead","better off dead","want to be dead",
-        "suicide","suicidal","kill myself","end my life","end it all",
-        "take my life","no reason to live","don't want to live",
-        "dont want to live","can't go on","cant go on",
+    blob = TextBlob(text)
+    polarity     = blob.sentiment.polarity
+    subjectivity = blob.sentiment.subjectivity
+
+    # 1. CRISIS — only clear self-harm / suicidal intent phrases
+    crisis_phrases = [
+        "i want to die","i wanna die","want to die",
+        "i want to be dead","wish i was dead","better off dead",
+        "i am going to kill myself","kill myself","killing myself",
+        "end my life","end it all","take my life","take my own life",
+        "suicide","suicidal",
+        "no reason to live","don't want to live","dont want to live",
+        "not want to live","can't go on","cant go on",
         "can't do this anymore","cant do this anymore",
-        "self harm","self-harm","hurt myself","cut myself",
-        "no point","nothing to live for","disappear forever",
+        "self harm","self-harm","hurt myself","cutting myself","cut myself",
+        "no point in living","no purpose in life","life is pointless",
+        "nothing to live for","disappear forever",
         "everyone would be better without me",
+        "i should not be alive","i don't deserve to live",
     ]
-    if any(p in tl for p in crisis_kw): return "Crisis"
-    if any(w in tl for w in ["stressed","overwhelmed","burnout","exhausted","deadline",
-                              "pressure","too much","no time","tired","can't cope"]): return "Stressed"
-    if any(w in tl for w in ["anxious","anxiety","nervous","panic","scared","fear",
-                              "worried","worry","restless","on edge","overthinking"]): return "Anxious"
-    pol = TextBlob(text).sentiment.polarity
-    if pol > 0.3:  return "Happy"
-    if pol < -0.3: return "Sad"
+    if any(p in tl for p in crisis_phrases): return "Crisis"
+
+    # 2. STRESSED — broad everyday words people actually type
+    stress_keywords = [
+        "stressed","stress","stressful",
+        "tensed","tense","tension",
+        "overwhelmed","overwhelming",
+        "burnout","burnt out","burned out",
+        "exhausted","exhausting","drained",
+        "overloaded","overworked",
+        "deadline","deadlines",
+        "too much to do","so much to do","a lot to do",
+        "too much work","so much work",
+        "too much on my plate","piled up",
+        "no time","running out of time","out of time",
+        "behind on","falling behind","way behind",
+        "pressure","under pressure",
+        "can't cope","cant cope","can't handle","cant handle",
+        "can't keep up","cant keep up",
+        "tired","so tired","very tired",
+        "fatigued","fatigue","wiped out",
+        "breaking down","break down",
+        "falling apart","losing it",
+        "at my limit","at my wit",
+        "drowning in","buried in work",
+        "frustrated","frustrating","frustration",
+        "irritated","irritating","agitated",
+        "fed up","sick of this","sick and tired",
+        "can't take it","cant take it",
+        "everything is too much",
+    ]
+    if any(kw in tl for kw in stress_keywords): return "Stressed"
+
+    # 3. ANXIOUS
+    anxiety_keywords = [
+        "anxious","anxiety","anxiousness",
+        "nervous","nervousness",
+        "panic","panicking","panic attack",
+        "scared","scary","terrified",
+        "fear","fearful","afraid",
+        "worried","worrying","worry","worries",
+        "restless","restlessness",
+        "on edge","uneasy","unease",
+        "heart racing","racing heart","palpitations",
+        "can't breathe","cant breathe","shortness of breath",
+        "overthinking","over thinking",
+        "what if","spiraling",
+        "dread","dreading",
+        "freaking out","freak out",
+    ]
+    if any(kw in tl for kw in anxiety_keywords): return "Anxious"
+
+    # 4. POLARITY FALLBACK
+    if polarity > 0.3:   return "Happy"
+    if polarity < -0.3:  return "Sad"
+    if polarity < -0.1 and subjectivity > 0.5: return "Stressed"
     return "Neutral"
 
 # ── RESOURCES ─────────────────────────────────────────────────────────────────
